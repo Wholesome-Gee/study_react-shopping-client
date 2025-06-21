@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
 import { ISetModalPage } from "./LoginModal";
 import styled from "styled-components";
+import axios from "axios";
+import { useEffect } from "react";
 
 const Form = styled.form`
   margin: 20px 0;
@@ -74,6 +76,7 @@ const Btn = styled.button`
 interface IData {
   email: string;
   password: string;
+  password2: string;
   name: string;
 }
 
@@ -82,11 +85,39 @@ export default function JoinPage({ setModalPage }: ISetModalPage) {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
+    clearErrors,
+    watch,
   } = useForm<IData>();
 
+  // 비밀번호 1, 2 일치하는지 검사
+  const password1 = watch("password");
+  const password2 = watch("password2");
+  useEffect(() => {
+    if (password1 && password2 && password1 !== password2) {
+      setError("password2", {
+        type: "passwordError",
+        message: "비밀번호가 일치하지 않습니다.",
+      });
+    } else {
+      if (errors.password2?.type === "passwordError") {
+        clearErrors("password2");
+      }
+    }
+  }, [password1, password2, setError, clearErrors, errors]);
+
   function success(data: IData) {
-    console.log(data);
+    axios
+      .post("/join", data)
+      .then((res) => {
+        console.log("res:", res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    setModalPage(1);
   }
+
   return (
     <>
       <Form onSubmit={handleSubmit(success)}>
@@ -137,7 +168,7 @@ export default function JoinPage({ setModalPage }: ISetModalPage) {
         <InputContainer>
           <label htmlFor="pw2">P/W 확인: </label>
           <input
-            {...register("password", {
+            {...register("password2", {
               required: "password를 입력하세요",
               maxLength: { value: 16, message: "id는 16자 이하입니다." },
             })}

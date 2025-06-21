@@ -1,11 +1,12 @@
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { displayState, IDisplay } from "../atoms";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { IoIosCloseCircle } from "react-icons/io";
 
 import LoginModal from "./LoginModal";
+import axios from "axios";
 
 const Container = styled.div<IDisplay>`
   width: 100%;
@@ -78,7 +79,7 @@ const LoginBtn = styled.button<IDisplay>`
   }
 `;
 
-function Header() {
+function Header({ login }: { login: boolean }) {
   const display = useRecoilValue(displayState);
   const [value, setValue] = useState("");
   const [loginModal, setLoginModal] = useState(false);
@@ -96,10 +97,14 @@ function Header() {
       ref.current.focus();
     }
   }
-  function toggleJoinModal() {
+  function toggleLoginModal() {
     setLoginModal((prev) => !prev);
   }
-
+  function destroySession() {
+    axios.get("/logout");
+    window.location.href = window.location.href;
+    return;
+  }
   return (
     <Container display={display}>
       <Inner display={display}>
@@ -122,11 +127,17 @@ function Header() {
             </button>
           )}
         </Search>
-        <LoginBtn display={display} onClick={toggleJoinModal}>
-          로그인 또는 가입하기
-        </LoginBtn>
+        {login ? (
+          <LoginBtn display={display} onClick={destroySession}>
+            로그아웃
+          </LoginBtn>
+        ) : (
+          <LoginBtn display={display} onClick={toggleLoginModal}>
+            로그인 또는 가입하기
+          </LoginBtn>
+        )}
       </Inner>
-      {loginModal ? <LoginModal display={display} toggleJoinModal={toggleJoinModal} /> : null}
+      {loginModal ? <LoginModal display={display} toggleLoginModal={toggleLoginModal} /> : null}
     </Container>
   );
 }

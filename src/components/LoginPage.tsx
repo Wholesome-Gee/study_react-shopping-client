@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
 import { ISetModalPage } from "./LoginModal";
 import styled from "styled-components";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Form = styled.form`
   margin: 20px 0;
@@ -76,15 +78,35 @@ interface IData {
   password: string;
 }
 
-export default function LoginPage({ setModalPage }: ISetModalPage) {
+export interface IProps {
+  setModalPage: (args: number) => void;
+  toggleLoginModal: () => void;
+}
+
+export default function LoginPage({ setModalPage, toggleLoginModal }: IProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<IData>();
 
   function success(data: IData) {
-    console.log(data);
+    axios
+      .post("/login", data)
+      .then((res) => {
+        if (res.data.type === "emailError") {
+          setError("email", { type: "emailError", message: res.data.message }, { shouldFocus: true });
+          return;
+        } else if (res.data.type === "passwordError") {
+          setError("password", { type: "passwordError", message: res.data.message }, { shouldFocus: true });
+          return;
+        }
+        // 새로고침
+        toggleLoginModal();
+        window.location.href = window.location.href;
+      })
+      .catch((err) => console.log(err));
   }
   return (
     <>

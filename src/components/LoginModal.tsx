@@ -76,32 +76,32 @@ const Btn = styled.button`
 
 interface IProps {
   display: string;
-  toggleJoinModal: () => void;
+  toggleLoginModal: () => void;
 }
 
 export interface ISetModalPage {
   setModalPage: (args: number) => void;
 }
 
-function LoginModal({ display, toggleJoinModal }: IProps) {
+function LoginModal({ display, toggleLoginModal }: IProps) {
   const [modalPage, setModalPage] = useState(1);
 
   return (
-    <Overlay onClick={toggleJoinModal}>
+    <Overlay onClick={toggleLoginModal}>
       <LoginModalContainer
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
         <Top>
-          <IoMdClose onClick={toggleJoinModal} />
+          <IoMdClose onClick={toggleLoginModal} />
         </Top>
         <Bottom>
           <Logo display={display} img={process.env.PUBLIC_URL + "./images/logo/logo1.png"} />
           {modalPage === 1 ? (
             <FirstPage setModalPage={setModalPage} />
           ) : modalPage === 2 ? (
-            <LoginPage setModalPage={setModalPage} />
+            <LoginPage setModalPage={setModalPage} toggleLoginModal={toggleLoginModal} />
           ) : modalPage === 3 ? (
             <JoinPage setModalPage={setModalPage} />
           ) : null}
