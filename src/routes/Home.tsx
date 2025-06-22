@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import Menu from "../components/Menu";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Outlet, useNavigate } from "react-router-dom";
 
 // 🔻styled-components🔻
 const Container = styled.div`
@@ -14,12 +15,16 @@ const Contents = styled.div`
   margin: 80px auto 0;
   height: 100%;
   width: 1200px;
+  display: flex;
 `;
-const Content = styled.div``;
+const Content = styled.div`
+  width: 100%;
+`;
 
 // 🔻Component🔻
 export default function Home() {
   const [login, setLogin] = useState(false);
+  const navigate = useNavigate();
   // mount시
   useEffect(() => {
     axios
@@ -28,6 +33,7 @@ export default function Home() {
         setLogin(res.data.loggedIn);
       })
       .catch((err) => console.log("Home.tsx에서 세션 오류 발생: ", err));
+    navigate("/productList");
   }, []);
   return (
     <>
@@ -35,7 +41,9 @@ export default function Home() {
       <Container>
         <Contents>
           <Menu />
-          <Content />
+          <Content>
+            <Outlet />
+          </Content>
         </Contents>
       </Container>
     </>
